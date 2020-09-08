@@ -40,6 +40,9 @@ TextStyle blackText = TextStyle(color: Colors.black);
 TextStyle whiteText = TextStyle(color: Colors.white);
 TextStyle whiteTextBold =
     TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
+TextStyle productCardGreenTextBold = TextStyle(
+    color: customThemeGreen[400], fontWeight: FontWeight.bold, fontSize: 15);
+TextStyle productCardCostGreenTextBold = TextStyle(fontWeight: FontWeight.bold , color: customThemeGreen[800] , fontSize: 25 );
 
 //----------------------------------------------------------------------------
 

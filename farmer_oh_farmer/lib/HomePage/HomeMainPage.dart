@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
       decoration: BoxDecoration(
         image: DecorationImage(
           image: AssetImage("assets/bg_image.png"),
-          fit: BoxFit.fitHeight,
+          fit: BoxFit.cover,
         ),
       ),
       child: Scaffold(
