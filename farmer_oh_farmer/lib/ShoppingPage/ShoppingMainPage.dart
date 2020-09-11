@@ -1,4 +1,5 @@
 import 'package:farmer_oh_farmer/ShoppingPage/Farmer/FarmerDropDownElement.dart';
+import 'package:farmer_oh_farmer/ShoppingPage/Product/Product.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/Product/ProductCard.dart';
 import 'package:farmer_oh_farmer/Style.dart';
 import "package:flutter/material.dart";
@@ -79,7 +80,17 @@ class _ShoppingPageState extends State<ShoppingPage> {
       farmerDropDown(),
       if (!isFarmerSelected) selectFarmerImage(),
       if (isLoading) loadingSymbol(),
-      ProductCard(),
+      SizedBox(height:30),
+      Container(
+        height:MediaQuery.of(context).size.height - 250,
+        child: ListView.builder(
+          itemCount: productList.length,
+          shrinkWrap: true,
+          itemBuilder: (BuildContext context, index) {
+            return ProductCard(productList[index]);
+          },
+        ),
+      ),
     ]);
   }
 }

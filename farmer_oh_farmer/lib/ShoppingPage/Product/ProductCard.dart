@@ -1,26 +1,39 @@
 import 'package:farmer_oh_farmer/Style.dart';
 import 'package:flutter/material.dart';
+import 'package:toast/toast.dart';
+
+import 'Product.dart';
 
 class ProductCard extends StatefulWidget {
+  Product product;
+  ProductCard(this.product);
   @override
   _ProductCardState createState() => _ProductCardState();
 }
 
 class _ProductCardState extends State<ProductCard> {
-  String measurementUnit = "200 grams";
-  String costPerUnit = "60";
   int quantityCount = 0;
+  String addToCart = "Add To Cart";
+  bool isAddedToCart = false;
 
   Widget productPhoto() {
     return ClipRRect(
       borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(20), bottomLeft: Radius.circular(20)),
+        topLeft: Radius.circular(20),
+        bottomLeft: Radius.circular(20),
+      ),
       child: Image(
-        image: AssetImage("assets/tomato.png"),
-        height: 130,
-        width: 120,
+        image: AssetImage(widget.product.getProductUrl),
+        height: 135,
         fit: BoxFit.cover,
       ),
+    );
+  }
+
+  Widget productNameBuild() {
+    return Text(
+      widget.product.getProductName,
+      style: productCardDarkGreenTextBold,
     );
   }
 
@@ -30,7 +43,7 @@ class _ProductCardState extends State<ProductCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          measurementUnit,
+          widget.product.getProductMeasurementUnit,
           style: productCardGreenTextBold,
           textAlign: TextAlign.left,
         ),
@@ -40,7 +53,10 @@ class _ProductCardState extends State<ProductCard> {
         Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Text("₹ "+costPerUnit, style: productCardCostGreenTextBold,),
+            Text(
+              "₹ " + widget.product.getProductCostPerUnit.toString(),
+              style: productCardCostGreenTextBold,
+            ),
             SizedBox(width: 5),
           ],
         ),
@@ -59,15 +75,17 @@ class _ProductCardState extends State<ProductCard> {
         SizedBox(height: 15),
         Row(
           children: <Widget>[
-            Container(
-              child: Image(
-                image: AssetImage("assets/minus_button.png"),
+            InkWell(
+              onTap: () => decrementProductQuantity(),
+              child: Container(
+                child: Image(
+                  image: AssetImage("assets/minus_button.png"),
+                ),
               ),
             ),
             Container(
               alignment: Alignment.center,
-              decoration:
-                  BoxDecoration(border: Border.all(color: Color(0x70707000))),
+              decoration: BoxDecoration(border: Border.all(color: greyBorder)),
               width: 30,
               height: 27,
               child: Text(
@@ -78,9 +96,12 @@ class _ProductCardState extends State<ProductCard> {
                     fontWeight: FontWeight.bold),
               ),
             ),
-            Container(
-              child: Image(
-                image: AssetImage("assets/plus_button.png"),
+            InkWell(
+              onTap: () => incrementProductQuantity(),
+              child: Container(
+                child: Image(
+                  image: AssetImage("assets/plus_button.png"),
+                ),
               ),
             ),
           ],
@@ -90,67 +111,73 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Widget productAddToCart() {
-    return Container(
-      height: 35,
-      decoration: BoxDecoration(
-          color: customThemeGreen[900],
-          borderRadius: BorderRadius.only(bottomRight: Radius.circular((20)))),
-      alignment: Alignment.center,
-      child: Text("Add To Cart",
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: customThemeWhite[900])),
+    return RaisedButton(
+      padding: EdgeInsets.all(0),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomRight: Radius.circular(20))),
+      onPressed: isAddedToCart?   null :() => addProductToCart(),
+      color: customThemeGreen[900],
+      child: Container(
+        alignment: Alignment.center,
+        child: Text(addToCart, style: productAddButton),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 20,
-        ),
-        Container(
-          height: 130,
-          width: 400,
-          decoration: BoxDecoration(
-            color: customThemeWhite[900],
-            borderRadius: BorderRadius.all(
-              Radius.circular(20),
+    return Container(
+      child: Column(
+        children: [
+          Container(
+            height: 130,
+            width: 400,
+            decoration: BoxDecoration(
+              color: customThemeWhite[900],
+              borderRadius: BorderRadius.all(
+                Radius.circular(20),
+              ),
             ),
-          ),
-          margin: EdgeInsets.all(15),
-          child: Expanded(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
+            margin: EdgeInsets.only(left: 5, right: 5, top: 7, bottom: 7),
+            child: Column(
+              children: [
                 Expanded(
-                  flex: 1,
-                  child: productPhoto(),
-                ),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 15),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          SizedBox(
-                            width: 15,
-                          ),
-                          productRate(),
-                          SizedBox(width: 20),
-                          productQuantity(),
-                          SizedBox(
-                            width: 15,
-                          ),
-                        ],
-                      ),
-                      SizedBox(height: 10),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
                       Expanded(
-                        child: productAddToCart(),
+                        flex: 4,
+                        child: productPhoto(),
+                      ),
+                      Expanded(
+                        flex: 8,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(height: 7),
+                            productNameBuild(),
+                            SizedBox(height: 4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                              children: [
+                                SizedBox(
+                                  width: 15,
+                                ),
+                                productRate(),
+                                SizedBox(width: 20),
+                                productQuantity(),
+                                SizedBox(
+                                  width: 15,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: 10),
+                            Expanded(
+                              child: productAddToCart(),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -158,8 +185,48 @@ class _ProductCardState extends State<ProductCard> {
               ],
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+
+  void incrementProductQuantity() {
+    //print("Pressed Add");
+    enableAddToCartButton();
+    setState(() {
+      quantityCount++;
+    });
+  }
+
+  void decrementProductQuantity() {
+    //print("Pressed Minus");
+    enableAddToCartButton();
+    setState(() {
+      if (quantityCount > 0) quantityCount--;
+    });
+  }
+
+  void addProductToCart() {
+    print("Pressed Add To Cart");
+    if (quantityCount > 0) {
+      Toast.show(widget.product.getProductName + " Added To Cart" , context,
+          duration: Toast.LENGTH_LONG);
+      setState(() {
+        disableAddToCartButton();
+      });
+    }
+  }
+
+  void enableAddToCartButton() {
+    if(isAddedToCart)
+      setState(() {
+        isAddedToCart = false;
+      });
+  }
+
+  void disableAddToCartButton(){
+    setState(() {
+      isAddedToCart = true;
+    });
   }
 }

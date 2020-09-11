@@ -32,6 +32,8 @@ Map<int, Color> themeColorWhite = {
 
 MaterialColor customThemeWhite = MaterialColor(0xFF6C8E0A, themeColorWhite);
 
+Color greyBorder = Color(0x70707000);
+
 //----------------------------------------------------------------------------
 
 // Text Styles Go Here
@@ -42,7 +44,12 @@ TextStyle whiteTextBold =
     TextStyle(color: Colors.white, fontWeight: FontWeight.bold);
 TextStyle productCardGreenTextBold = TextStyle(
     color: customThemeGreen[400], fontWeight: FontWeight.bold, fontSize: 15);
-TextStyle productCardCostGreenTextBold = TextStyle(fontWeight: FontWeight.bold , color: customThemeGreen[800] , fontSize: 25 );
+    TextStyle productCardDarkGreenTextBold = TextStyle(
+    color: customThemeGreen[900], fontWeight: FontWeight.bold, fontSize: 17);
+TextStyle productCardCostGreenTextBold = TextStyle(
+    fontWeight: FontWeight.bold, color: customThemeGreen[800], fontSize: 25);
+TextStyle productAddButton = TextStyle(
+    fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 15);
 
 //----------------------------------------------------------------------------
 
