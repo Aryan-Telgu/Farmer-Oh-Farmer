@@ -1,6 +1,6 @@
+import 'package:farmer_oh_farmer/Product/Product.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/Farmer/FarmerDropDownElement.dart';
-import 'package:farmer_oh_farmer/ShoppingPage/Product/Product.dart';
-import 'package:farmer_oh_farmer/ShoppingPage/Product/ProductCard.dart';
+import 'package:farmer_oh_farmer/Product/ProductCard.dart';
 import 'package:farmer_oh_farmer/Style.dart';
 import "package:flutter/material.dart";
 
@@ -13,7 +13,7 @@ class ShoppingPage extends StatefulWidget {
 
 class _ShoppingPageState extends State<ShoppingPage> {
   Farmer farmer = farmersList[0];
-  bool isFarmerSelected = true;
+  bool isFarmerSelected = false;
   bool isLoading = false;
 
   Widget farmerDropDown() {
@@ -35,6 +35,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
                 isLoading = true;
               } else
                 isFarmerSelected = false;
+              isLoading = false; // remove this when data retrival code is ready
             });
           },
           items: farmersList.map<DropdownMenuItem<Farmer>>((Farmer value) {
@@ -75,22 +76,22 @@ class _ShoppingPageState extends State<ShoppingPage> {
   Widget build(BuildContext context) {
     return Column(children: <Widget>[
       SizedBox(
-        height: 30,
+        height: 20,
       ),
       farmerDropDown(),
       if (!isFarmerSelected) selectFarmerImage(),
       if (isLoading) loadingSymbol(),
-      SizedBox(height:30),
-      Container(
-        height:MediaQuery.of(context).size.height - 250,
-        child: ListView.builder(
-          itemCount: productList.length,
-          shrinkWrap: true,
-          itemBuilder: (BuildContext context, index) {
-            return ProductCard(productList[index]);
-          },
+      SizedBox(height: 10),
+      if (isFarmerSelected && !isLoading)
+        Expanded(
+          child: ListView.builder(
+            itemCount: productList.length,
+            shrinkWrap: true,
+            itemBuilder: (BuildContext context, index) {
+              return ProductCard(productList[index], ShoppingOrCart.SHOPPING);
+            },
+          ),
         ),
-      ),
     ]);
   }
 }

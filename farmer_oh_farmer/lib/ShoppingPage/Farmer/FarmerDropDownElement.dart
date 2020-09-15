@@ -2,6 +2,7 @@ import 'package:farmer_oh_farmer/Style.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating/flutter_rating.dart';
 
+// ignore: must_be_immutable
 class FarmerDropDownElement extends StatelessWidget {
   FarmerDropDownElement(this.name, this.rating);
   String name;

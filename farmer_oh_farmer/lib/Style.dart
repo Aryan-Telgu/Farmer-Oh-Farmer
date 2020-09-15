@@ -50,6 +50,8 @@ TextStyle productCardCostGreenTextBold = TextStyle(
     fontWeight: FontWeight.bold, color: customThemeGreen[800], fontSize: 25);
 TextStyle productAddButton = TextStyle(
     fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 15);
+TextStyle proceedCheckOutButton = TextStyle(
+    fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 20);
 
 //----------------------------------------------------------------------------
 

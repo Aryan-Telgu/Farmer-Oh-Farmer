@@ -1,6 +1,4 @@
-import 'package:farmer_oh_farmer/Style.dart';
 import 'package:flutter/material.dart';
-import 'package:farmer_oh_farmer/ShoppingPage/ShoppingMainPage.dart';
 
 class LoginPage extends StatefulWidget {
   @override
