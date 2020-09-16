@@ -51,25 +51,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
   }
 
   Widget selectFarmerImage() {
-    return Column(
-      children: [
-        SizedBox(
-          height: 200,
-        ),
-        Image(image: AssetImage("assets/select_farmer.png")),
-      ],
-    );
+    return Image(image: AssetImage("assets/select_farmer.png"));
   }
 
   Widget loadingSymbol() {
-    return Column(
-      children: [
-        SizedBox(
-          height: 250,
-        ),
-        CircularProgressIndicator(),
-      ],
-    );
+    return CircularProgressIndicator();
   }
 
   @override
@@ -79,19 +65,25 @@ class _ShoppingPageState extends State<ShoppingPage> {
         height: 20,
       ),
       farmerDropDown(),
-      if (!isFarmerSelected) selectFarmerImage(),
-      if (isLoading) loadingSymbol(),
       SizedBox(height: 10),
-      if (isFarmerSelected && !isLoading)
-        Expanded(
-          child: ListView.builder(
-            itemCount: productList.length,
-            shrinkWrap: true,
-            itemBuilder: (BuildContext context, index) {
-              return ProductCard(productList[index], ShoppingOrCart.SHOPPING);
-            },
-          ),
+      Expanded(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            if (!isFarmerSelected) selectFarmerImage(),
+            if (isLoading) loadingSymbol(),
+            if (isFarmerSelected && !isLoading)
+              ListView.builder(
+                itemCount: productList.length,
+                shrinkWrap: true,
+                itemBuilder: (BuildContext context, index) {
+                  return ProductCard(
+                      productList[index], ShoppingOrCart.SHOPPING);
+                },
+              ),
+          ],
         ),
+      )
     ]);
   }
 }

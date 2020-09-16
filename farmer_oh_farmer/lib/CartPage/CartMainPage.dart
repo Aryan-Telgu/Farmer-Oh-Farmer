@@ -11,10 +11,8 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   Farmer farmer = farmersList[0];
-  bool isFarmerSelected = true;
+  bool isCartFilled = false;
   bool isLoading = false;
-
-  
 
   Widget loadingSymbol() {
     return Column(
@@ -43,22 +41,40 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
+  Widget cartIsEmpty() {
+    return Image(image: AssetImage("assets/cart_is_empty.png"));
+  }
+
+  Widget cartIsFilled() {
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            itemCount: productList.length,
+            shrinkWrap: false,
+            itemBuilder: (BuildContext context, index) {
+              return ProductCard(productList[index], ShoppingOrCart.CART);
+            },
+          ),
+        ),
+        Container(padding: EdgeInsets.all(20), child: proceedButton()),
+      ],
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Column(children: <Widget>[
-      if (isLoading) loadingSymbol(),
-      Expanded(
-        child: ListView.builder(
-          itemCount: productList.length,
-          shrinkWrap: false,
-          itemBuilder: (BuildContext context, index) {
-            return ProductCard(productList[index], ShoppingOrCart.CART);
-          },
+    return Row(
+      children: [
+        Expanded(
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              isCartFilled ? cartIsFilled() : cartIsEmpty(),
+            ],
+          ),
         ),
-      ),
-      Container(
-          padding: EdgeInsets.all(20),
-          child: proceedButton()),
-    ]);
+      ],
+    );
   }
 }
