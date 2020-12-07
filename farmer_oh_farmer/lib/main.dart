@@ -3,6 +3,7 @@ import 'package:farmer_oh_farmer/Style.dart';
 import 'package:flutter/material.dart';
 
 import 'LoginPage/LoginMainPage.dart';
+import 'SignUpPage/SignUpMainPage.dart';
 
 void main() {
   runApp(MyApp());
@@ -18,7 +19,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: customThemeGreen,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: new HomePage(),
+      home: new SignUpPage(),
     );
   }
 }
