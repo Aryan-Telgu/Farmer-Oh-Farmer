@@ -1,8 +1,12 @@
 import 'package:farmer_oh_farmer/CartPage/CartMainPage.dart';
+import 'package:farmer_oh_farmer/LoginPage/LoginMainPage.dart';
+import 'package:farmer_oh_farmer/Models/Customer.dart';
 import 'package:farmer_oh_farmer/Product/ProductCard.dart';
 import 'package:farmer_oh_farmer/Style.dart';
+import 'package:farmer_oh_farmer/Transitions.dart';
 import 'package:flutter/material.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/ShoppingMainPage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -61,11 +65,16 @@ class _HomePageState extends State<HomePage> {
                     new Text("rutwik.shete@gmail.com", style: blackText),
                 currentAccountPicture: new CircleAvatar(
                   backgroundImage: new NetworkImage(
-                      "https://instagram.fnag1-3.fna.fbcdn.net/v/t51.2885-15/sh0.08/e35/s640x640/118648860_2648340292050012_4863397966211105654_n.jpg?_nc_ht=instagram.fnag1-3.fna.fbcdn.net&_nc_cat=100&_nc_ohc=U7INHXKBnqcAX-a2s45&oh=7c4fdc6ba4e95a5c2b3b466480a0a59e&oe=5F7C326B"),
+                      "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.1ttGsbftpt0gIqIjA13sVwHaFj%26pid%3DApi&f=1"),
                 ),
                 decoration: BoxDecoration(color: Colors.white),
               ),
               new ListTile(
+                onTap: () {
+                  Result customer = new Result();
+                  customer.deleteCustomerDataLocally();
+                  Navigator.of(context).pushReplacement(BouncyNavigation(LoginPage()));
+                },
                 title: new Text(
                   "LogOut",
                   style: whiteText,

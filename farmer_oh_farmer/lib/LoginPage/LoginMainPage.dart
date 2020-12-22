@@ -1,43 +1,57 @@
+import 'package:farmer_oh_farmer/Constants.dart';
+import 'package:farmer_oh_farmer/HomePage/HomeMainPage.dart';
+import 'package:farmer_oh_farmer/Models/Customer.dart';
 import 'package:farmer_oh_farmer/SignUpPage/SignUpMainPage.dart';
 import 'package:flutter/material.dart';
+import 'package:farmer_oh_farmer/Style.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+
+import 'package:toast/toast.dart';
+
+import '../Transitions.dart';
 
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
   final String title;
+  
   @override
   LoginPageState createState() => LoginPageState();
 }
 
 class LoginPageState extends State<LoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  String email = "";
+  String password = "";
+
+  Future<String> loginCustomer() async {
+    var response = await http.post(Uri.encodeFull(loginApi),
+        headers: {"Content-Type": "application/json"},
+        body: json.encode({"email": email, "password": password}));
+    Customer customer = Customer.fromJson(json.decode(response.body));
+    if (customer.status == SUCCESSFLAG) {
+      customer.result.saveCustomerDataLocally();
+      Navigator.of(context).pushReplacement(BouncyNavigation(HomePage()));
+    } else if (customer.status == FAILEDFLAG) {
+      Toast.show(customer.message, context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final emailField = TextField(
-      obscureText: false,
-      style: style,
-      decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.white70,
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Email Address",
-          hintStyle: TextStyle(fontSize: 22.0, color: Colors.black54),
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(32.0),
-              borderSide: BorderSide(width: 1, color: Colors.grey))),
-    );
+        onChanged: (value) => email = value,
+        obscureText: false,
+        style: style,
+        decoration: loginPageInputDecoration("Email Address"));
+
     final passwordField = TextField(
+      onChanged: (value) => password = value,
       obscureText: true,
       style: style,
-      decoration: InputDecoration(
-          filled: true,
-          fillColor: Colors.white70,
-          contentPadding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-          hintText: "Password",
-          hintStyle: TextStyle(fontSize: 22.0, color: Colors.black54),
-          border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(32.0),
-              borderSide: BorderSide(width: 1, color: Colors.grey))),
+      decoration: loginPageInputDecoration("Password"),
     );
     final loginButon = Material(
       elevation: 5.0,
@@ -46,7 +60,7 @@ class LoginPageState extends State<LoginPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {},
+        onPressed: loginCustomer,
         child: Text("Login",
             textAlign: TextAlign.center,
             style: style.copyWith(
@@ -88,40 +102,32 @@ class LoginPageState extends State<LoginPage> {
         backgroundColor: Colors.transparent,
         body: Padding(
           padding: const EdgeInsets.all(36.0),
-          child : SingleChildScrollView(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    SizedBox(height: 100),
-                    SizedBox(
-                      height: 155.0,
-                      child: Image.asset(
-                        "assets/home_logo.png",
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                    SizedBox(height: 30.0),
-                    emailField,
-                    SizedBox(height: 10),
-                    SizedBox(height: 30.0),
-                    passwordField,
-                    SizedBox(height: 10),
-                    SizedBox(
-                      height: 30.0,
-                    ),
-                    loginButon,
-                    SizedBox(height: 10),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    newuserButton,
-                  ],
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(height: 100),
+                SizedBox(
+                  height: 155.0,
+                  child: Image.asset(
+                    "assets/home_logo.png",
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
+                SizedBox(height: 30.0),
+                emailField,
+                SizedBox(height: 30),
+                passwordField,
+                SizedBox(height: 60),
+                loginButon,
+                SizedBox(height: 30),
+                newuserButton,
+              ],
+            ),
+          ),
         ),
       ),
     );
   }
 }
-

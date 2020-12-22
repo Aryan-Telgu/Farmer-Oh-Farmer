@@ -1,6 +1,5 @@
 import 'package:farmer_oh_farmer/LoginPage/LoginMainPage.dart';
 import 'package:flutter/material.dart';
-import 'lib\LoginPage\LoginMainPage.dart';
 
 class SignUpPage extends StatefulWidget {
   SignUpPage({Key key, this.title}) : super(key: key);
@@ -67,7 +66,7 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final SignUpButon = Material(
+    final signUpButon = Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
       color: Color(0xFF6C8E0A),
@@ -115,15 +114,15 @@ class SignUpPageState extends State<SignUpPage> {
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
         onPressed: () {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) {
-                                  return LoginPage();
-                                },
-                              ),
-                            );
-                          },
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) {
+                return LoginPage();
+              },
+            ),
+          );
+        },
         child: Text("Have Account ?",
             textAlign: TextAlign.center,
             style: style.copyWith(
@@ -131,60 +130,59 @@ class SignUpPageState extends State<SignUpPage> {
       ),
     );
 
-    return  Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("assets/login_page_bg.png"),
-            fit: BoxFit.cover,
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/login_page_bg.png"),
+          fit: BoxFit.cover,
         ),
-        child: SingleChildScrollView(
-                  child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Padding(
-              padding: const EdgeInsets.all(36.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Padding(
+          padding: const EdgeInsets.all(36.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(
+                height: 155.0,
+                child: Image.asset(
+                  "assets/home_logo.png",
+                  fit: BoxFit.contain,
+                ),
+              ),
+              Expanded(
+                child: ListView(
+                  shrinkWrap: true,
                   children: <Widget>[
+                    SizedBox(height: 15.0),
+                    nameField,
+                    SizedBox(height: 15.0),
+                    emailField,
+                    SizedBox(height: 15.0),
+                    passwordField,
+                    SizedBox(height: 15.0),
+                    confirmPasswordField,
+                    SizedBox(height: 15.0),
+                    pincode,
+                    SizedBox(height: 15.0),
+                    address,
                     SizedBox(
-                      height: 155.0,
-                      child: Image.asset(
-                        "assets/home_logo.png",
-                        fit: BoxFit.contain,
-                      ),
+                      height: 15.0,
                     ),
-                       Column( 
-                            //crossAxisAlignment: CrossAxisAlignment.center,
-                            //mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget>[
-                              SizedBox(height: 15.0),
-                              nameField,
-                              SizedBox(height: 15.0),
-                              emailField,
-                              SizedBox(height: 15.0),
-                              passwordField,
-                              SizedBox(height: 15.0),
-                              confirmPasswordField,
-                              SizedBox(height: 15.0),
-                              pincode,
-                              SizedBox(height: 15.0),
-                              address,
-                              SizedBox(
-                                height: 15.0,
-                              ),
-                              SignUpButon,
-                              SizedBox(
-                                height: 15.0,
-                              ),
-                              haveaccountButton,
-                            ],
-                          ),
+                    signUpButon,
+                    SizedBox(
+                      height: 15.0,
+                    ),
+                    haveaccountButton,
                   ],
                 ),
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
   }
 }
