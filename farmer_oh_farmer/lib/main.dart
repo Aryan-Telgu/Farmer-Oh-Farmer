@@ -24,20 +24,20 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
   Animation<double> _animation;
 
   Future<String> _checkIfAlreadyLoggedIn() async {
-    startAnimation();
     await Future.delayed(Duration(seconds: 4));
     final customerInfo = new FlutterSecureStorage();
     bool customerIdExists = await customerInfo.containsKey(key: "CustomerId");
     String customerName = await customerInfo.read(key: "CustomerName");
-    print(customerName);
     if (customerIdExists)
       return "True";
     else
       return "False";
   }
 
-  Future startAnimation(){
-     _imageRotationController = AnimationController(
+  @override
+  void initState() {
+    super.initState();
+    _imageRotationController = AnimationController(
       duration: const Duration(milliseconds: 3000),
       vsync: this,
     )..repeat(reverse: true);
@@ -53,6 +53,7 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       title: 'Flutter Demo',
       theme: ThemeData(
         primaryColor: customThemeGreen,
+        accentColor: customThemeWhite[900],
       ),
       home: FutureBuilder<String>(
         future:
@@ -96,27 +97,4 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
       ),
     );
   }
-  // return Container(
-  //     decoration: BoxDecoration(
-  //       image: DecorationImage(
-  //         image: AssetImage("assets/bg_image.png"),
-  //         fit: BoxFit.cover,
-  //       ),
-  //     ),
-  //     child: Container(
-  //       padding: EdgeInsets.all(30),
-  //       child: Column(
-  //         crossAxisAlignment: CrossAxisAlignment.center,
-  //         mainAxisAlignment: MainAxisAlignment.center,
-  //         children: [
-  //           Image.asset("assets/fruit_basket.png"),
-  //           SizedBox(height: 100),
-  //           RotationTransition(
-  //             turns: _animation,
-  //             child: Image.asset("assets/splash_logo.png"),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
 }

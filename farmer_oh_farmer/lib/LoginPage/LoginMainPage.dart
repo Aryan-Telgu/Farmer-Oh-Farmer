@@ -4,7 +4,6 @@ import 'package:farmer_oh_farmer/Models/Customer.dart';
 import 'package:farmer_oh_farmer/SignUpPage/SignUpMainPage.dart';
 import 'package:flutter/material.dart';
 import 'package:farmer_oh_farmer/Style.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
@@ -15,7 +14,7 @@ import '../Transitions.dart';
 class LoginPage extends StatefulWidget {
   LoginPage({Key key, this.title}) : super(key: key);
   final String title;
-  
+
   @override
   LoginPageState createState() => LoginPageState();
 }
@@ -24,30 +23,50 @@ class LoginPageState extends State<LoginPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
   String email = "";
   String password = "";
+  bool isLoading = false;
 
   Future<String> loginCustomer() async {
-    var response = await http.post(Uri.encodeFull(loginApi),
-        headers: {"Content-Type": "application/json"},
-        body: json.encode({"email": email, "password": password}));
-    Customer customer = Customer.fromJson(json.decode(response.body));
-    if (customer.status == SUCCESSFLAG) {
-      customer.result.saveCustomerDataLocally();
-      Navigator.of(context).pushReplacement(BouncyNavigation(HomePage()));
-    } else if (customer.status == FAILEDFLAG) {
-      Toast.show(customer.message, context,
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      var response = await http.post(Uri.encodeFull(loginApi),
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({"email": email, "password": password}));
+      Customer customer = Customer.fromJson(json.decode(response.body));
+      if (customer.status == SUCCESSFLAG) {
+        customer.result.saveCustomerDataLocally();
+        setState(() {
+          isLoading = false;
+        });
+        Navigator.of(context).pushReplacement(BouncyNavigation(HomePage()));
+      } else if (customer.status == FAILEDFLAG) {
+        Toast.show(customer.message, context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      }
+    } catch (e) {
+      Toast.show(e.toString(), context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      setState(() {
+        isLoading = false;
+      });
     }
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final emailField = TextField(
+        enabled: !isLoading,
         onChanged: (value) => email = value,
         obscureText: false,
         style: style,
         decoration: loginPageInputDecoration("Email Address"));
 
     final passwordField = TextField(
+      enabled: !isLoading,
       onChanged: (value) => password = value,
       obscureText: true,
       style: style,
@@ -60,11 +79,17 @@ class LoginPageState extends State<LoginPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: loginCustomer,
-        child: Text("Login",
-            textAlign: TextAlign.center,
-            style: style.copyWith(
-                color: Colors.white, fontWeight: FontWeight.bold)),
+        onPressed: isLoading ? null : loginCustomer,
+        child: isLoading
+            ? CircularProgressIndicator()
+            : Text(
+                "Login",
+                textAlign: TextAlign.center,
+                style: style.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
     final newuserButton = Material(
@@ -74,16 +99,18 @@ class LoginPageState extends State<LoginPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: () {
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (context) {
-                return SignUpPage();
+        onPressed: isLoading
+            ? null
+            : () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return SignUpPage();
+                    },
+                  ),
+                );
               },
-            ),
-          );
-        },
         child: Text("New User ?",
             textAlign: TextAlign.center,
             style: style.copyWith(

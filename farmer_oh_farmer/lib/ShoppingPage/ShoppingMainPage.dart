@@ -1,9 +1,16 @@
+import 'dart:convert';
+
+import 'package:farmer_oh_farmer/Constants.dart';
+import 'package:farmer_oh_farmer/Models/FarmerList.dart';
 import 'package:farmer_oh_farmer/Product/Product.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/Farmer/FarmerDropDownElement.dart';
 import 'package:farmer_oh_farmer/Product/ProductCard.dart';
 import 'package:farmer_oh_farmer/Style.dart';
+import 'package:farmer_oh_farmer/Transitions.dart';
 import "package:flutter/material.dart";
-
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:toast/toast.dart';
+import 'package:http/http.dart' as http;
 import 'Farmer/FamerTempList.dart';
 
 class ShoppingPage extends StatefulWidget {
@@ -12,9 +19,42 @@ class ShoppingPage extends StatefulWidget {
 }
 
 class _ShoppingPageState extends State<ShoppingPage> {
-  Farmer farmer = farmersList[0];
+  Farmer farmer  = farmersList[0];
   bool isFarmerSelected = false;
   bool isLoading = false;
+
+  Future<String> loginCustomer() async {
+    setState(() {
+      isLoading = true;
+    });
+    try {
+      final customerInfo = new FlutterSecureStorage();
+      String customerPincode = await customerInfo.read(key: "CustomerPincode");
+      var response = await http.post(Uri.encodeFull(loginApi),
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({"pincode": customerPincode}));
+      FarmerList farmerList = FarmerList.fromJson(json.decode(response.body));
+      if (farmerList.status == SUCCESSFLAG) {
+
+        setState(() {
+          isLoading = false;
+        });
+        
+      } else if (farmerList.status == FAILEDFLAG) {
+        Toast.show(farmerList.message, context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      }
+    } catch (e) {
+      Toast.show(e.toString(), context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      setState(() {
+        isLoading = false;
+      });
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
 
   Widget farmerDropDown() {
     return Center(
