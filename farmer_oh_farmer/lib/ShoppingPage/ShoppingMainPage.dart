@@ -6,7 +6,6 @@ import 'package:farmer_oh_farmer/Product/Product.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/Farmer/FarmerDropDownElement.dart';
 import 'package:farmer_oh_farmer/Product/ProductCard.dart';
 import 'package:farmer_oh_farmer/Style.dart';
-import 'package:farmer_oh_farmer/Transitions.dart';
 import "package:flutter/material.dart";
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:toast/toast.dart';
@@ -19,28 +18,45 @@ class ShoppingPage extends StatefulWidget {
 }
 
 class _ShoppingPageState extends State<ShoppingPage> {
-  Farmer farmer  = farmersList[0];
+  List<FarmerListElement> farmerListElements = new List<FarmerListElement>();
+  FarmerListElement farmer = new FarmerListElement(farmerName: "Select Farmer",farmerRating: 0.0);
+  bool isServiceAvailable = true;
   bool isFarmerSelected = false;
   bool isLoading = false;
 
-  Future<String> loginCustomer() async {
+  @override
+  void initState() {
+    super.initState();
+    searchFarmerByLocation();
+  }
+
+  Future<String> searchFarmerByLocation() async {
     setState(() {
       isLoading = true;
     });
     try {
       final customerInfo = new FlutterSecureStorage();
       String customerPincode = await customerInfo.read(key: "CustomerPincode");
-      var response = await http.post(Uri.encodeFull(loginApi),
+      var response = await http.post(Uri.encodeFull(searchFarmerByLocationApi),
           headers: {"Content-Type": "application/json"},
           body: json.encode({"pincode": customerPincode}));
       FarmerList farmerList = FarmerList.fromJson(json.decode(response.body));
       if (farmerList.status == SUCCESSFLAG) {
-
         setState(() {
           isLoading = false;
+          farmerList.farmerListElements.insert(0, farmer);
+          this.farmerListElements = farmerList.farmerListElements;
+          farmer = farmerList.farmerListElements[0];
         });
-        
       } else if (farmerList.status == FAILEDFLAG) {
+        farmerList.farmerListElements = new List<FarmerListElement>();
+        farmerList.farmerListElements.insert(0, farmer);
+        this.farmerListElements = farmerList.farmerListElements;
+        farmer = farmerList.farmerListElements[0];
+        setState(() {
+          isServiceAvailable = false;
+        });
+        isServiceAvailable = false;
         Toast.show(farmerList.message, context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       }
@@ -61,16 +77,16 @@ class _ShoppingPageState extends State<ShoppingPage> {
       child: Container(
         decoration: dropDownBoxDecoration,
         padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
-        child: DropdownButton(
+        child: isLoading ? loadingSymbol():DropdownButton(
           value: farmer,
           icon: rTextFieldIcon(Icons.arrow_drop_down),
           underline: Container(
             height: 0, // to remove the underline
           ),
-          onChanged: (Farmer newValue) {
+          onChanged: (FarmerListElement newValue) {
             setState(() {
               farmer = newValue;
-              if (farmersList.indexOf(farmer) != 0) {
+              if (farmerListElements.indexOf(farmer) != 0) {
                 isFarmerSelected = true;
                 isLoading = true;
               } else
@@ -78,10 +94,10 @@ class _ShoppingPageState extends State<ShoppingPage> {
               isLoading = false; // remove this when data retrival code is ready
             });
           },
-          items: farmersList.map<DropdownMenuItem<Farmer>>((Farmer value) {
-            return DropdownMenuItem<Farmer>(
+          items: farmerListElements.map<DropdownMenuItem<FarmerListElement>>((FarmerListElement value) {
+            return DropdownMenuItem<FarmerListElement>(
               value: value,
-              child: FarmerDropDownElement(value.name, value.rating),
+              child: FarmerDropDownElement(value.farmerName, value.farmerRating),
             );
           }).toList(),
           dropdownColor: customThemeWhite[900],
@@ -90,8 +106,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
-  Widget selectFarmerImage() {
-    return Image(image: AssetImage("assets/select_farmer.png"));
+  Widget errorImage(bool isServiceAvailable , bool isFarmerSelected){
+    if(!isFarmerSelected && !isServiceAvailable)
+      return Image(image: AssetImage("assets/service_not_available.png"));
+    else
+      return Image(image: AssetImage("assets/select_farmer.png"));
   }
 
   Widget loadingSymbol() {
@@ -110,7 +129,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (!isFarmerSelected) selectFarmerImage(),
+            if (!isFarmerSelected) errorImage(isServiceAvailable,isFarmerSelected),
             if (isLoading) loadingSymbol(),
             if (isFarmerSelected && !isLoading)
               ListView.builder(

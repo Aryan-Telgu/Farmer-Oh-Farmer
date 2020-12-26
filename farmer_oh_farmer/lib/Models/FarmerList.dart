@@ -1,28 +1,28 @@
 class FarmerList {
   String _status;
   String _message;
-  List<Result> _result;
+  List<FarmerListElement> _farmerListElements;
 
-  FarmerList({String status, String message, List<Result> result}) {
+  FarmerList({String status, String message, List<FarmerListElement> farmerListElements}) {
     this._status = status;
     this._message = message;
-    this._result = result;
+    this._farmerListElements = farmerListElements;
   }
 
   String get status => _status;
   set status(String status) => _status = status;
   String get message => _message;
   set message(String message) => _message = message;
-  List<Result> get result => _result;
-  set result(List<Result> result) => _result = result;
+  List<FarmerListElement> get farmerListElements => _farmerListElements;
+  set farmerListElements(List<FarmerListElement> farmerListElements) => _farmerListElements = farmerListElements;
 
   FarmerList.fromJson(Map<String, dynamic> json) {
     _status = json['status'];
     _message = json['message'];
     if (json['result'] != null) {
-      _result = new List<Result>();
+      _farmerListElements = new List<FarmerListElement>();
       json['result'].forEach((v) {
-        _result.add(new Result.fromJson(v));
+        _farmerListElements.add(new FarmerListElement.fromJson(v));
       });
     }
   }
@@ -31,19 +31,19 @@ class FarmerList {
     final Map<String, dynamic> data = new Map<String, dynamic>();
     data['status'] = this._status;
     data['message'] = this._message;
-    if (this._result != null) {
-      data['result'] = this._result.map((v) => v.toJson()).toList();
+    if (this._farmerListElements != null) {
+      data['result'] = this._farmerListElements.map((v) => v.toJson()).toList();
     }
     return data;
   }
 }
 
-class Result {
+class FarmerListElement {
   String _farmerName;
   int _farmerId;
   double _farmerRating;
 
-  Result({String farmerName, int farmerId, double farmerRating}) {
+  FarmerListElement({String farmerName, int farmerId, double farmerRating}) {
     this._farmerName = farmerName;
     this._farmerId = farmerId;
     this._farmerRating = farmerRating;
@@ -56,7 +56,7 @@ class Result {
   double get farmerRating => _farmerRating;
   set farmerRating(double farmerRating) => _farmerRating = farmerRating;
 
-  Result.fromJson(Map<String, dynamic> json) {
+  FarmerListElement.fromJson(Map<String, dynamic> json) {
     _farmerName = json['farmerName'];
     _farmerId = json['farmerId'];
     _farmerRating = json['farmerRating'];

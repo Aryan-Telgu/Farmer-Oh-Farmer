@@ -35,7 +35,7 @@ class LoginPageState extends State<LoginPage> {
           body: json.encode({"email": email, "password": password}));
       Customer customer = Customer.fromJson(json.decode(response.body));
       if (customer.status == SUCCESSFLAG) {
-        customer.result.saveCustomerDataLocally();
+        await customer.result.saveCustomerDataLocally();
         setState(() {
           isLoading = false;
         });
