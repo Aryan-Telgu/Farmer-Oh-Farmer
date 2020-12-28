@@ -1,28 +1,26 @@
+import 'package:farmer_oh_farmer/Models/ProductList.dart';
 import 'package:farmer_oh_farmer/Style.dart';
 import 'package:flutter/material.dart';
 import 'package:toast/toast.dart';
 
 import 'Product.dart';
 
-enum ShoppingOrCart{
-  SHOPPING,
-  CART
-}
+enum ShoppingOrCart { SHOPPING, CART }
 
 // ignore: must_be_immutable
 class ProductCard extends StatefulWidget {
-  Product product;
+  ProductListElement product;
 
   ShoppingOrCart whichPage;
-  ProductCard(this.product,this.whichPage);
+  ProductCard(this.product, this.whichPage);
   @override
   _ProductCardState createState() => _ProductCardState(whichPage);
 }
 
 class _ProductCardState extends State<ProductCard> {
-  ShoppingOrCart whichPage ;
+  ShoppingOrCart whichPage;
   int quantityCount = 0;
-  String buttonText ;
+  String buttonText;
   bool isAddedToCart = false;
 
   _ProductCardState(this.whichPage);
@@ -34,8 +32,17 @@ class _ProductCardState extends State<ProductCard> {
         bottomLeft: Radius.circular(20),
       ),
       child: Image(
-        image: AssetImage(widget.product.getProductUrl),
+        image: NetworkImage(widget.product.productDataPhotoLink),
         height: 135,
+        loadingBuilder: (context, child, loadingProgress) {
+          if (loadingProgress == null) {
+            return child;
+          } else {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
+        },
         fit: BoxFit.cover,
       ),
     );
@@ -43,7 +50,7 @@ class _ProductCardState extends State<ProductCard> {
 
   Widget productNameBuild() {
     return Text(
-      widget.product.getProductName,
+      widget.product.productDataName,
       style: productCardDarkGreenTextBold,
     );
   }
@@ -54,7 +61,7 @@ class _ProductCardState extends State<ProductCard> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          widget.product.getProductMeasurementUnit,
+          widget.product.measurement,
           style: productCardGreenTextBold,
           textAlign: TextAlign.left,
         ),
@@ -65,7 +72,7 @@ class _ProductCardState extends State<ProductCard> {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             Text(
-              "₹ " + widget.product.getProductCostPerUnit.toString(),
+              "₹ " + widget.product.cost.toString(),
               style: productCardCostGreenTextBold,
             ),
             SizedBox(width: 5),
@@ -122,17 +129,16 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Widget productAddToCart() {
-    if(whichPage == ShoppingOrCart.SHOPPING){
+    if (whichPage == ShoppingOrCart.SHOPPING) {
       buttonText = "Add To Cart";
-    }
-    else{
+    } else {
       buttonText = "Remove From Cart";
     }
     return RaisedButton(
       padding: EdgeInsets.all(0),
       shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.only(bottomRight: Radius.circular(20))),
-      onPressed: isAddedToCart?   null :() => addProductToCart(),
+      onPressed: isAddedToCart ? null : () => addProductToCart(),
       color: customThemeGreen[900],
       child: Container(
         alignment: Alignment.center,
@@ -226,7 +232,7 @@ class _ProductCardState extends State<ProductCard> {
   void addProductToCart() {
     print("Pressed Add To Cart");
     if (quantityCount > 0) {
-      Toast.show(widget.product.getProductName + " Added To Cart" , context,
+      Toast.show(widget.product.productDataName + " Added To Cart", context,
           duration: Toast.LENGTH_LONG);
       setState(() {
         disableAddToCartButton();
@@ -235,13 +241,13 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   void enableAddToCartButton() {
-    if(isAddedToCart)
+    if (isAddedToCart)
       setState(() {
         isAddedToCart = false;
       });
   }
 
-  void disableAddToCartButton(){
+  void disableAddToCartButton() {
     setState(() {
       isAddedToCart = true;
     });

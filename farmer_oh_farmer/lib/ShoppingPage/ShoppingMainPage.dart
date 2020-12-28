@@ -2,7 +2,7 @@ import 'dart:convert';
 
 import 'package:farmer_oh_farmer/Constants.dart';
 import 'package:farmer_oh_farmer/Models/FarmerList.dart';
-import 'package:farmer_oh_farmer/Product/Product.dart';
+import 'package:farmer_oh_farmer/Models/ProductList.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/Farmer/FarmerDropDownElement.dart';
 import 'package:farmer_oh_farmer/Product/ProductCard.dart';
 import 'package:farmer_oh_farmer/Style.dart';
@@ -20,9 +20,12 @@ class ShoppingPage extends StatefulWidget {
 class _ShoppingPageState extends State<ShoppingPage> {
   List<FarmerListElement> farmerListElements = new List<FarmerListElement>();
   FarmerListElement farmer = new FarmerListElement(farmerName: "Select Farmer",farmerRating: 0.0);
+  List<ProductListElement> productListElements = new List<ProductListElement>();
   bool isServiceAvailable = true;
   bool isFarmerSelected = false;
-  bool isLoading = false;
+  bool isProductAvailable = true;
+  bool areFarmersLoading = false;
+  bool areProductsLoading = false;
 
   @override
   void initState() {
@@ -32,7 +35,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
 
   Future<String> searchFarmerByLocation() async {
     setState(() {
-      isLoading = true;
+      areFarmersLoading = true;
     });
     try {
       final customerInfo = new FlutterSecureStorage();
@@ -43,7 +46,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
       FarmerList farmerList = FarmerList.fromJson(json.decode(response.body));
       if (farmerList.status == SUCCESSFLAG) {
         setState(() {
-          isLoading = false;
+          areFarmersLoading = false;
           farmerList.farmerListElements.insert(0, farmer);
           this.farmerListElements = farmerList.farmerListElements;
           farmer = farmerList.farmerListElements[0];
@@ -64,11 +67,49 @@ class _ShoppingPageState extends State<ShoppingPage> {
       Toast.show(e.toString(), context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       setState(() {
-        isLoading = false;
+        areFarmersLoading = false;
       });
     }
     setState(() {
-      isLoading = false;
+      areFarmersLoading = false;
+    });
+  }
+
+  Future<String> getProductFromFarmer(FarmerListElement selectedFarmer) async {
+    setState(() {
+      isProductAvailable = true;
+      areProductsLoading = true;
+    });
+    try {
+      var response = await http.post(Uri.encodeFull(getProductsFromFarmerApi),
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({"farmerId": selectedFarmer.farmerId}));
+      ProductList productList = ProductList.fromJson(json.decode(response.body));
+      if (productList.status == SUCCESSFLAG) {
+        setState(() {
+          areProductsLoading = false;
+          isProductAvailable = true;
+          productListElements = productList.productListElements;
+        });
+      } else if (productList.status == FAILEDFLAG) {
+        setState(() {
+          areProductsLoading = false;
+          isProductAvailable = false;
+          productListElements.clear();
+        });
+        
+        Toast.show(productList.message, context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      }
+    } catch (e) {
+      Toast.show(e.toString(), context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      setState(() {
+        areProductsLoading = false;
+      });
+    }
+    setState(() {
+      areProductsLoading = false;
     });
   }
 
@@ -76,8 +117,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return Center(
       child: Container(
         decoration: dropDownBoxDecoration,
-        padding: EdgeInsets.fromLTRB(10, 10, 0, 10),
-        child: isLoading ? loadingSymbol():DropdownButton(
+        padding: areFarmersLoading ? EdgeInsets.all(10):EdgeInsets.fromLTRB(10, 10, 0, 10),
+        child: areFarmersLoading ? loadingSymbol():DropdownButton(
           value: farmer,
           icon: rTextFieldIcon(Icons.arrow_drop_down),
           underline: Container(
@@ -87,11 +128,11 @@ class _ShoppingPageState extends State<ShoppingPage> {
             setState(() {
               farmer = newValue;
               if (farmerListElements.indexOf(farmer) != 0) {
+                getProductFromFarmer(farmer);
                 isFarmerSelected = true;
-                isLoading = true;
+                areProductsLoading = true;
               } else
                 isFarmerSelected = false;
-              isLoading = false; // remove this when data retrival code is ready
             });
           },
           items: farmerListElements.map<DropdownMenuItem<FarmerListElement>>((FarmerListElement value) {
@@ -106,10 +147,12 @@ class _ShoppingPageState extends State<ShoppingPage> {
     );
   }
 
-  Widget errorImage(bool isServiceAvailable , bool isFarmerSelected){
-    if(!isFarmerSelected && !isServiceAvailable)
+  Widget errorImage(bool isServiceAvailable , bool isFarmerSelected , bool isProductAvailable){
+    if(!isServiceAvailable)
       return Image(image: AssetImage("assets/service_not_available.png"));
-    else
+    if(!isProductAvailable)
+      return Image(image: AssetImage("assets/products_not_available.png"));
+    if(!isFarmerSelected)
       return Image(image: AssetImage("assets/select_farmer.png"));
   }
 
@@ -129,15 +172,16 @@ class _ShoppingPageState extends State<ShoppingPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if (!isFarmerSelected) errorImage(isServiceAvailable,isFarmerSelected),
-            if (isLoading) loadingSymbol(),
-            if (isFarmerSelected && !isLoading)
+            if(!isServiceAvailable || !isProductAvailable || !isFarmerSelected)
+            errorImage(isServiceAvailable,isFarmerSelected,isProductAvailable),
+            if (areProductsLoading) loadingSymbol(),//not able to see loading symbol
+            if (isFarmerSelected && !areProductsLoading && isProductAvailable)
               ListView.builder(
-                itemCount: productList.length,
+                itemCount: productListElements.length,
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, index) {
                   return ProductCard(
-                      productList[index], ShoppingOrCart.SHOPPING);
+                      productListElements[index], ShoppingOrCart.SHOPPING);
                 },
               ),
           ],
