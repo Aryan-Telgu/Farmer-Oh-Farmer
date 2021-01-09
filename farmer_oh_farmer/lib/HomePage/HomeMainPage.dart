@@ -90,6 +90,7 @@ class _HomePageState extends State<HomePage> {
           ),
           body: Container(
             height: double.infinity,
+            width: double.infinity,
             child: whichPage == ShoppingOrCart.SHOPPING
                 ? ShoppingPage()
                 : CartPage(),

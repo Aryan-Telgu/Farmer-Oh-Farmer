@@ -52,6 +52,8 @@ TextStyle productAddButton = TextStyle(
     fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 15);
 TextStyle proceedCheckOutButton = TextStyle(
     fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 20);
+TextStyle totalCostStyle = TextStyle(
+    fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 25);
 
 //----------------------------------------------------------------------------
 

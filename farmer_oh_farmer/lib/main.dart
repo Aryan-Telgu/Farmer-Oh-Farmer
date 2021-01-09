@@ -1,12 +1,10 @@
 import 'dart:convert';
 
 import 'package:farmer_oh_farmer/HomePage/HomeMainPage.dart';
-import 'package:farmer_oh_farmer/Models/Customer.dart';
 import 'package:farmer_oh_farmer/Style.dart';
-import 'package:farmer_oh_farmer/Transitions.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:toast/toast.dart';
 
 import 'LoginPage/LoginMainPage.dart';
 
@@ -27,7 +25,6 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
     await Future.delayed(Duration(seconds: 4));
     final customerInfo = new FlutterSecureStorage();
     bool customerIdExists = await customerInfo.containsKey(key: "CustomerId");
-    String customerName = await customerInfo.read(key: "CustomerName");
     if (customerIdExists)
       return "True";
     else
@@ -49,6 +46,9 @@ class _MyAppState extends State<MyApp> with SingleTickerProviderStateMixin {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+    ]);
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(

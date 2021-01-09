@@ -1,7 +1,12 @@
+import 'dart:convert';
+
+import 'package:farmer_oh_farmer/Constants.dart';
 import 'package:farmer_oh_farmer/Models/ProductList.dart';
 import 'package:farmer_oh_farmer/Style.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:toast/toast.dart';
+import 'package:http/http.dart' as http;
 
 import 'Product.dart';
 
@@ -10,20 +15,25 @@ enum ShoppingOrCart { SHOPPING, CART }
 // ignore: must_be_immutable
 class ProductCard extends StatefulWidget {
   ProductListElement product;
-
+  int productQuantity;
   ShoppingOrCart whichPage;
-  ProductCard(this.product, this.whichPage);
+  Function reloadCart;
+  int productIndex;
+  Function changeItemQuantityInList;
+  ProductCard(this.whichPage, this.product,
+      {this.productQuantity = 0,
+      this.reloadCart = null,
+      this.productIndex = -1,
+      this.changeItemQuantityInList = null});
   @override
-  _ProductCardState createState() => _ProductCardState(whichPage);
+  _ProductCardState createState() => _ProductCardState();
 }
 
 class _ProductCardState extends State<ProductCard> {
-  ShoppingOrCart whichPage;
-  int quantityCount = 0;
   String buttonText;
   bool isAddedToCart = false;
-
-  _ProductCardState(this.whichPage);
+  bool isAddingToCart = false;
+  bool isRemovingFromCart = false;
 
   Widget productPhoto() {
     return ClipRRect(
@@ -107,7 +117,7 @@ class _ProductCardState extends State<ProductCard> {
               width: 30,
               height: 27,
               child: Text(
-                quantityCount.toString(),
+                widget.productQuantity.toString(),
                 style: TextStyle(
                     fontSize: 17,
                     color: customThemeGreen[900],
@@ -129,11 +139,7 @@ class _ProductCardState extends State<ProductCard> {
   }
 
   Widget productAddToCart() {
-    if (whichPage == ShoppingOrCart.SHOPPING) {
-      buttonText = "Add To Cart";
-    } else {
-      buttonText = "Remove From Cart";
-    }
+    buttonText = "Add To Cart";
     return RaisedButton(
       padding: EdgeInsets.all(0),
       shape: RoundedRectangleBorder(
@@ -142,7 +148,41 @@ class _ProductCardState extends State<ProductCard> {
       color: customThemeGreen[900],
       child: Container(
         alignment: Alignment.center,
-        child: Text(buttonText, style: productAddButton),
+        child: isAddingToCart
+            ? Container(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              )
+            : Text(buttonText, style: productAddButton), //add loading
+      ),
+    );
+  }
+
+  Widget productRemoveFromCart() {
+    buttonText = "Remove From Cart";
+
+    return RaisedButton(
+      padding: EdgeInsets.all(0),
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.only(bottomRight: Radius.circular(20))),
+      onPressed: () => removeProduct(),
+      color: customThemeGreen[900],
+      child: Container(
+        alignment: Alignment.center,
+        child: isRemovingFromCart
+            ? Container(
+                padding: EdgeInsets.all(10),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              )
+            : Text(buttonText, style: productAddButton), //add loading
       ),
     );
   }
@@ -197,7 +237,10 @@ class _ProductCardState extends State<ProductCard> {
                             ),
                             SizedBox(height: 10),
                             Expanded(
-                              child: productAddToCart(),
+                              child:
+                                  (widget.whichPage == ShoppingOrCart.SHOPPING)
+                                      ? productAddToCart()
+                                      : productRemoveFromCart(),
                             ),
                           ],
                         ),
@@ -213,31 +256,125 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  void incrementProductQuantity() {
-    //print("Pressed Add");
+  void incrementProductQuantity() async{
     enableAddToCartButton();
+    if (widget.whichPage == ShoppingOrCart.CART) {
+      await addProduct();
+    }
     setState(() {
-      quantityCount++;
+      widget.productQuantity++;
+      if (widget.whichPage == ShoppingOrCart.CART) widget.changeItemQuantityInList(1, widget.productIndex);
     });
   }
 
-  void decrementProductQuantity() {
-    //print("Pressed Minus");
-    enableAddToCartButton();
+  void decrementProductQuantity() async {
+    //print("Pressed Minus")
+    if (widget.whichPage == ShoppingOrCart.CART) {
+      if (widget.productQuantity == 1) {
+        await removeProduct();
+      } else {
+        await addProduct();
+      }
+    }
     setState(() {
-      if (quantityCount > 0) quantityCount--;
+      if (widget.productQuantity > 0) {
+        widget.productQuantity--;
+        if (widget.whichPage == ShoppingOrCart.CART) widget.changeItemQuantityInList(-1,widget.productIndex);
+      }
     });
+     enableAddToCartButton();
   }
 
   void addProductToCart() {
-    print("Pressed Add To Cart");
-    if (quantityCount > 0) {
-      Toast.show(widget.product.productDataName + " Added To Cart", context,
-          duration: Toast.LENGTH_LONG);
+    if (widget.productQuantity > 0) {
+      addProduct();
+    }
+  }
+
+  Future<String> addProduct() async {
+    setState(() {
+      isAddingToCart = true;
+      isRemovingFromCart = true;
+    });
+    try {
+      final customerInfo = new FlutterSecureStorage();
+      String customerId = await customerInfo.read(key: "CustomerId");
+      var response = await http.post(Uri.encodeFull(addProductToCartApi),
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({
+            "customerId": customerId,
+            "productId": widget.product.id,
+            "productQuantity": widget.productQuantity
+          }));
+      dynamic result = json.decode(response.body);
+      if (result["status"] == SUCCESSFLAG) {
+        Toast.show(widget.product.productDataName + " Added To Cart", context,
+            duration: Toast.LENGTH_LONG);
+        setState(() {
+          disableAddToCartButton();
+        });
+      } else if (result["status"] == FAILEDFLAG) {
+        Toast.show(result["message"], context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        setState(() {
+          isAddingToCart = false;
+          isRemovingFromCart = false;
+        });
+      }
+    } catch (e) {
+      Toast.show(e.toString(), context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       setState(() {
-        disableAddToCartButton();
+        isAddingToCart = false;
+        isRemovingFromCart = false;
       });
     }
+    setState(() {
+      isAddingToCart = false;
+      isRemovingFromCart = false;
+    });
+  }
+
+  Future<String> removeProduct() async {
+    setState(() {
+      isRemovingFromCart = true;
+    });
+    try {
+      final customerInfo = new FlutterSecureStorage();
+      String customerId = await customerInfo.read(key: "CustomerId");
+      var response = await http.post(Uri.encodeFull(addProductToCartApi),
+          headers: {"Content-Type": "application/json"},
+          body: json.encode({
+            "customerId": customerId,
+            "productId": widget.product.id,
+            "productQuantity": "0"
+          }));
+      dynamic result = json.decode(response.body);
+      if (result["status"] == SUCCESSFLAG) {
+        Toast.show(
+            widget.product.productDataName + " Removed From The Cart", context,
+            duration: Toast.LENGTH_LONG);
+        setState(() {
+          //disableAddToCartButton();
+          widget.reloadCart(widget.productIndex);
+        });
+      } else if (result["status"] == FAILEDFLAG) {
+        Toast.show(result["message"], context,
+            duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+        setState(() {
+          isRemovingFromCart = false;
+        });
+      }
+    } catch (e) {
+      Toast.show(e.toString(), context,
+          duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      setState(() {
+        isRemovingFromCart = false;
+      });
+    }
+    setState(() {
+      isRemovingFromCart = false;
+    });
   }
 
   void enableAddToCartButton() {

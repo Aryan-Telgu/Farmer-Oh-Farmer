@@ -10,7 +10,6 @@ import "package:flutter/material.dart";
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:toast/toast.dart';
 import 'package:http/http.dart' as http;
-import 'Farmer/FamerTempList.dart';
 
 class ShoppingPage extends StatefulWidget {
   @override
@@ -19,7 +18,8 @@ class ShoppingPage extends StatefulWidget {
 
 class _ShoppingPageState extends State<ShoppingPage> {
   List<FarmerListElement> farmerListElements = new List<FarmerListElement>();
-  FarmerListElement farmer = new FarmerListElement(farmerName: "Select Farmer",farmerRating: 0.0);
+  FarmerListElement farmer =
+      new FarmerListElement(farmerName: "Select Farmer", farmerRating: 0.0);
   List<ProductListElement> productListElements = new List<ProductListElement>();
   bool isServiceAvailable = true;
   bool isFarmerSelected = false;
@@ -84,7 +84,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
       var response = await http.post(Uri.encodeFull(getProductsFromFarmerApi),
           headers: {"Content-Type": "application/json"},
           body: json.encode({"farmerId": selectedFarmer.farmerId}));
-      ProductList productList = ProductList.fromJson(json.decode(response.body));
+      ProductList productList =
+          ProductList.fromJson(json.decode(response.body));
       if (productList.status == SUCCESSFLAG) {
         setState(() {
           areProductsLoading = false;
@@ -97,7 +98,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
           isProductAvailable = false;
           productListElements.clear();
         });
-        
+
         Toast.show(productList.message, context,
             duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
       }
@@ -117,42 +118,50 @@ class _ShoppingPageState extends State<ShoppingPage> {
     return Center(
       child: Container(
         decoration: dropDownBoxDecoration,
-        padding: areFarmersLoading ? EdgeInsets.all(10):EdgeInsets.fromLTRB(10, 10, 0, 10),
-        child: areFarmersLoading ? loadingSymbol():DropdownButton(
-          value: farmer,
-          icon: rTextFieldIcon(Icons.arrow_drop_down),
-          underline: Container(
-            height: 0, // to remove the underline
-          ),
-          onChanged: (FarmerListElement newValue) {
-            setState(() {
-              farmer = newValue;
-              if (farmerListElements.indexOf(farmer) != 0) {
-                getProductFromFarmer(farmer);
-                isFarmerSelected = true;
-                areProductsLoading = true;
-              } else
-                isFarmerSelected = false;
-            });
-          },
-          items: farmerListElements.map<DropdownMenuItem<FarmerListElement>>((FarmerListElement value) {
-            return DropdownMenuItem<FarmerListElement>(
-              value: value,
-              child: FarmerDropDownElement(value.farmerName, value.farmerRating),
-            );
-          }).toList(),
-          dropdownColor: customThemeWhite[900],
-        ),
+        padding: areFarmersLoading
+            ? EdgeInsets.all(10)
+            : EdgeInsets.fromLTRB(10, 10, 0, 10),
+        child: areFarmersLoading
+            ? loadingSymbol()
+            : DropdownButton(
+                value: farmer,
+                icon: rTextFieldIcon(Icons.arrow_drop_down),
+                underline: Container(
+                  height: 0, // to remove the underline
+                ),
+                onChanged: (FarmerListElement newValue) {
+                  setState(() {
+                    farmer = newValue;
+                    if (farmerListElements.indexOf(farmer) != 0) {
+                      getProductFromFarmer(farmer);
+                      isFarmerSelected = true;
+                      areProductsLoading = true;
+                    } else
+                      isFarmerSelected = false;
+                  });
+                },
+                items: farmerListElements
+                    .map<DropdownMenuItem<FarmerListElement>>(
+                        (FarmerListElement value) {
+                  return DropdownMenuItem<FarmerListElement>(
+                    value: value,
+                    child: FarmerDropDownElement(
+                        value.farmerName, value.farmerRating),
+                  );
+                }).toList(),
+                dropdownColor: customThemeWhite[900],
+              ),
       ),
     );
   }
 
-  Widget errorImage(bool isServiceAvailable , bool isFarmerSelected , bool isProductAvailable){
-    if(!isServiceAvailable)
+  Widget errorImage(
+      bool isServiceAvailable, bool isFarmerSelected, bool isProductAvailable) {
+    if (!isServiceAvailable)
       return Image(image: AssetImage("assets/service_not_available.png"));
-    if(!isProductAvailable)
+    if (!isProductAvailable)
       return Image(image: AssetImage("assets/products_not_available.png"));
-    if(!isFarmerSelected)
+    if (!isFarmerSelected)
       return Image(image: AssetImage("assets/select_farmer.png"));
   }
 
@@ -172,16 +181,18 @@ class _ShoppingPageState extends State<ShoppingPage> {
         child: Stack(
           alignment: Alignment.center,
           children: [
-            if(!isServiceAvailable || !isProductAvailable || !isFarmerSelected)
-            errorImage(isServiceAvailable,isFarmerSelected,isProductAvailable),
-            if (areProductsLoading) loadingSymbol(),//not able to see loading symbol
+            if (!isServiceAvailable || !isProductAvailable || !isFarmerSelected)
+              errorImage(
+                  isServiceAvailable, isFarmerSelected, isProductAvailable),
+            if (areProductsLoading)
+              loadingSymbol(), //not able to see loading symbol
             if (isFarmerSelected && !areProductsLoading && isProductAvailable)
               ListView.builder(
                 itemCount: productListElements.length,
                 shrinkWrap: true,
                 itemBuilder: (BuildContext context, index) {
                   return ProductCard(
-                      productListElements[index], ShoppingOrCart.SHOPPING);
+                      ShoppingOrCart.SHOPPING, productListElements[index]);
                 },
               ),
           ],
