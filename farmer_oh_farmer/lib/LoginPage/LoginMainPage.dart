@@ -6,9 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:farmer_oh_farmer/Style.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
 import 'package:toast/toast.dart';
-
 import '../Transitions.dart';
 
 class LoginPage extends StatefulWidget {
