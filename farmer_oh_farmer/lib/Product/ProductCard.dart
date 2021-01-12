@@ -8,8 +8,6 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:toast/toast.dart';
 import 'package:http/http.dart' as http;
 
-import 'Product.dart';
-
 enum ShoppingOrCart { SHOPPING, CART }
 
 // ignore: must_be_immutable
@@ -22,9 +20,9 @@ class ProductCard extends StatefulWidget {
   Function changeItemQuantityInList;
   ProductCard(this.whichPage, this.product,
       {this.productQuantity = 0,
-      this.reloadCart = null,
+      this.reloadCart,
       this.productIndex = -1,
-      this.changeItemQuantityInList = null});
+      this.changeItemQuantityInList});
   @override
   _ProductCardState createState() => _ProductCardState();
 }
@@ -291,7 +289,7 @@ class _ProductCardState extends State<ProductCard> {
     }
   }
 
-  Future<String> addProduct() async {
+  Future<void> addProduct() async {
     setState(() {
       isAddingToCart = true;
       isRemovingFromCart = true;
@@ -335,7 +333,7 @@ class _ProductCardState extends State<ProductCard> {
     });
   }
 
-  Future<String> removeProduct() async {
+  Future<void> removeProduct() async {
     setState(() {
       isRemovingFromCart = true;
     });

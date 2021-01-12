@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:farmer_oh_farmer/HomePage/HomeMainPage.dart';
 import 'package:farmer_oh_farmer/Style.dart';
 import 'package:flutter/material.dart';

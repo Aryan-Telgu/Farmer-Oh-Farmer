@@ -54,6 +54,10 @@ TextStyle proceedCheckOutButton = TextStyle(
     fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 20);
 TextStyle totalCostStyle = TextStyle(
     fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 25);
+TextStyle orderDetailsGreenStyle = TextStyle(
+    fontWeight: FontWeight.bold, color: customThemeGreen[900], fontSize: 20);
+TextStyle orderDetailsWhiteStyle = TextStyle(
+    fontWeight: FontWeight.bold, color: customThemeWhite[900], fontSize: 20);
 
 //----------------------------------------------------------------------------
 

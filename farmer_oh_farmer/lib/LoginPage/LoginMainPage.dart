@@ -25,7 +25,7 @@ class LoginPageState extends State<LoginPage> {
   String password = "";
   bool isLoading = false;
 
-  Future<String> loginCustomer() async {
+  Future<void> loginCustomer() async {
     setState(() {
       isLoading = true;
     });

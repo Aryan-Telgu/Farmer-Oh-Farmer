@@ -3,8 +3,6 @@ import 'dart:convert';
 import 'package:farmer_oh_farmer/Constants.dart';
 import 'package:farmer_oh_farmer/Models/CartProductList.dart';
 import 'package:farmer_oh_farmer/Models/Order.dart';
-import 'package:farmer_oh_farmer/Models/ProductList.dart';
-import 'package:farmer_oh_farmer/Product/Product.dart';
 import 'package:farmer_oh_farmer/Product/ProductCard.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/Farmer/FamerTempList.dart';
 import 'package:farmer_oh_farmer/Style.dart';
@@ -14,7 +12,10 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:toast/toast.dart';
 
+// ignore: must_be_immutable
 class CartPage extends StatefulWidget {
+  Function toggleToShoppingPage;
+  CartPage({this.toggleToShoppingPage});
   @override
   _CartPageState createState() => _CartPageState();
 }
@@ -27,6 +28,8 @@ class _CartPageState extends State<CartPage> {
   List<CartListElement> cartListElements = new List();
   String customerId;
   double totalCost = 0;
+  Order order;
+  bool isOrderSuccessfull = false;
 
   @override
   void initState() {
@@ -34,7 +37,7 @@ class _CartPageState extends State<CartPage> {
     getCartProducts();
   }
 
-  Future<String> getCartProducts() async {
+  Future<void> getCartProducts() async {
     setState(() {
       isLoading = true;
       cartListElements.clear();
@@ -116,7 +119,7 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Future<String> placeOrder() async {
+  Future<void> placeOrder() async {
     setState(() {
       isPlacingOrder = true;
     });
@@ -125,18 +128,20 @@ class _CartPageState extends State<CartPage> {
           headers: {"Content-Type": "application/json"},
           body: json
               .encode({"customerId": customerId, "orderAmount": totalCost}));
-      Order order = Order.fromJson(json.decode(response.body));
+      order = Order.fromJson(json.decode(response.body));
       if (order.status == SUCCESSFLAG) {
         setState(() {
           isPlacingOrder = false;
           print("success");
           cartListElements.clear();
           getCartProducts();
+          isOrderSuccessfull = true;
           //Do Something
         });
       } else if (order.status == FAILEDFLAG) {
         setState(() {
           isPlacingOrder = false;
+          isOrderSuccessfull = false;
           //Do Something
         });
 
@@ -220,24 +225,139 @@ class _CartPageState extends State<CartPage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Expanded(
-            child: Stack(
-              alignment: Alignment.center,
+  Widget orderDetails() {
+    return IntrinsicHeight(
+      child: Column(
+        children: [
+          Container(
+            margin: EdgeInsets.only(left: 5, right: 5),
+            padding: EdgeInsets.only(left: 20, right: 20),
+            height: 60,
+            width: 400,
+            decoration: BoxDecoration(
+              color: customThemeGreen[900],
+              borderRadius: BorderRadius.only(
+                topLeft: Radius.circular(20),
+                topRight: Radius.circular(20),
+              ),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                isLoading
-                    ? loadingSymbol()
-                    : isCartEmpty
-                        ? cartIsEmpty()
-                        : cartIsFilled(),
+                Text("Bill Amount :", style: orderDetailsWhiteStyle),
+                Text("₹ " + totalCost.toString(), style: orderDetailsWhiteStyle)
               ],
             ),
           ),
-        ]);
+          Container(
+              alignment: Alignment.center,
+              margin: EdgeInsets.only(left: 5, right: 5),
+              padding: EdgeInsets.only(left: 20, right: 20),
+              width: 400,
+              decoration: BoxDecoration(
+                color: customThemeWhite[900],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    margin: EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Order Id : ",
+                          style: orderDetailsGreenStyle,
+                        ),
+                        Text(
+                          order == null ? "" : order.orderDetails.id.toString(),
+                          style: orderDetailsGreenStyle,
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(left: 15, right: 15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Farmer Name : ",
+                          style: orderDetailsGreenStyle,
+                        ),
+                        Text(
+                          order == null ? "" : order.orderDetails.farmerName,
+                          style: orderDetailsGreenStyle,
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    margin: EdgeInsets.all(15),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "Delivery Status : ",
+                          style: orderDetailsGreenStyle,
+                        ),
+                        Text(
+                          "Pending",
+                          style: orderDetailsGreenStyle,
+                        )
+                      ],
+                    ),
+                  )
+                ],
+              )),
+          Container(
+            margin: EdgeInsets.only(left: 5, right: 5),
+              height: 60,
+              width: 400,
+              alignment: Alignment.center,
+              child: RaisedButton(
+                padding: EdgeInsets.all(0),
+                shape: RoundedRectangleBorder(
+                    borderRadius:
+                        BorderRadius.only(bottomRight: Radius.circular(20),bottomLeft: Radius.circular(20))),
+                onPressed: widget.toggleToShoppingPage,
+                color: customThemeGreen[900],
+                child: Container(
+                  alignment: Alignment.center,
+                  child: Text("Back To Shopping",
+                      style: orderDetailsWhiteStyle), //add loading
+                ),
+              )),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  isLoading
+                      ? loadingSymbol()
+                      : isCartEmpty
+                          ? cartIsEmpty()
+                          : cartIsFilled(),
+                ],
+              ),
+            ),
+          ],
+        ),
+        if (isOrderSuccessfull) orderDetails(),
+      ],
+    );
   }
 }

@@ -33,7 +33,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     searchFarmerByLocation();
   }
 
-  Future<String> searchFarmerByLocation() async {
+  Future<void> searchFarmerByLocation() async {
     setState(() {
       areFarmersLoading = true;
     });
@@ -75,7 +75,7 @@ class _ShoppingPageState extends State<ShoppingPage> {
     });
   }
 
-  Future<String> getProductFromFarmer(FarmerListElement selectedFarmer) async {
+  Future<void> getProductFromFarmer(FarmerListElement selectedFarmer) async {
     setState(() {
       isProductAvailable = true;
       areProductsLoading = true;
@@ -163,6 +163,8 @@ class _ShoppingPageState extends State<ShoppingPage> {
       return Image(image: AssetImage("assets/products_not_available.png"));
     if (!isFarmerSelected)
       return Image(image: AssetImage("assets/select_farmer.png"));
+    else
+      return Container();
   }
 
   Widget loadingSymbol() {

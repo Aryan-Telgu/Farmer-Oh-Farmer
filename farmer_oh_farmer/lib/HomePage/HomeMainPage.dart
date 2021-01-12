@@ -93,7 +93,7 @@ class _HomePageState extends State<HomePage> {
             width: double.infinity,
             child: whichPage == ShoppingOrCart.SHOPPING
                 ? ShoppingPage()
-                : CartPage(),
+                : CartPage(toggleToShoppingPage:toggleWhichPage),
           ),
         ),
       ),
