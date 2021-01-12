@@ -18,6 +18,13 @@ class SignUpPage extends StatefulWidget {
 
 class SignUpPageState extends State<SignUpPage> {
   TextStyle style = TextStyle(fontFamily: 'Montserrat', fontSize: 20.0);
+  TextEditingController nameController = new TextEditingController();
+  TextEditingController emailController = new TextEditingController();
+  TextEditingController phoneController = new TextEditingController();
+  TextEditingController passwordController = new TextEditingController();
+  TextEditingController confirmPasswordController = new TextEditingController();
+  TextEditingController pincodeController = new TextEditingController();
+  TextEditingController addressController = new TextEditingController();
   String name = "";
   String email = "";
   String phone = "";
@@ -26,7 +33,7 @@ class SignUpPageState extends State<SignUpPage> {
   String address = "";
   bool isLoading = false;
 
-  Future<String> signUpCustomer() async {
+  Future<void> signUpCustomer() async {
     print(name + email + phone + password + pincode + address);
     setState(() {
       isLoading = true;
@@ -65,10 +72,9 @@ class SignUpPageState extends State<SignUpPage> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    // ignore: unused_local_variable
-    final nameField = TextField(
+  Widget nameField() {
+    return TextField(
+      controller: nameController,
       enabled: !isLoading,
       onChanged: (value) => name = value,
       obscureText: false,
@@ -83,7 +89,11 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final emailField = TextField(
+  }
+
+  Widget emailField() {
+    return TextField(
+      controller: emailController,
       enabled: !isLoading,
       onChanged: (value) => email = value,
       obscureText: false,
@@ -98,7 +108,11 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final phoneField = TextField(
+  }
+
+  Widget phoneField() {
+    return TextField(
+      controller: phoneController,
       enabled: !isLoading,
       onChanged: (value) => phone = value,
       obscureText: false,
@@ -113,7 +127,11 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final passwordField = TextField(
+  }
+
+  Widget passwordField() {
+    return TextField(
+      controller: passwordController,
       enabled: !isLoading,
       onChanged: (value) => password = value,
       obscureText: true,
@@ -128,7 +146,11 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final confirmPasswordField = TextField(
+  }
+
+  Widget confirmPasswordField() {
+    return TextField(
+      controller: confirmPasswordController,
       obscureText: true,
       style: style,
       decoration: InputDecoration(
@@ -141,7 +163,10 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final signUpButon = Material(
+  }
+
+  Widget signUpButton() {
+    return Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
       color: Color(0xFF6C8E0A),
@@ -161,7 +186,11 @@ class SignUpPageState extends State<SignUpPage> {
               ),
       ),
     );
-    final pincodeField = TextField(
+  }
+
+  Widget pincodeField() {
+    return TextField(
+      controller: pincodeController,
       enabled: !isLoading,
       onChanged: (value) => pincode = value,
       obscureText: false,
@@ -176,7 +205,11 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final addressField = TextField(
+  }
+
+  Widget addressField() {
+    return TextField(
+      controller: addressController,
       enabled: !isLoading,
       onChanged: (value) => address = value,
       obscureText: false,
@@ -191,7 +224,10 @@ class SignUpPageState extends State<SignUpPage> {
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
     );
-    final haveaccountButton = Material(
+  }
+
+  Widget haveaccountButton() {
+    return Material(
       elevation: 5.0,
       borderRadius: BorderRadius.circular(30.0),
       color: Color(0xFF6C8E0A),
@@ -214,7 +250,10 @@ class SignUpPageState extends State<SignUpPage> {
                 color: Colors.white, fontWeight: FontWeight.bold)),
       ),
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -242,27 +281,27 @@ class SignUpPageState extends State<SignUpPage> {
                   shrinkWrap: true,
                   children: <Widget>[
                     SizedBox(height: 15.0),
-                    nameField,
+                    nameField(),
                     SizedBox(height: 15.0),
-                    emailField,
+                    emailField(),
                     SizedBox(height: 15.0),
-                    phoneField,
+                    phoneField(),
                     SizedBox(height: 15.0),
-                    passwordField,
+                    passwordField(),
                     SizedBox(height: 15.0),
-                    confirmPasswordField,
+                    confirmPasswordField(),
                     SizedBox(height: 15.0),
-                    pincodeField,
+                    pincodeField(),
                     SizedBox(height: 15.0),
-                    addressField,
+                    addressField(),
                     SizedBox(
                       height: 15.0,
                     ),
-                    signUpButon,
+                    signUpButton(),
                     SizedBox(
                       height: 15.0,
                     ),
-                    haveaccountButton,
+                    haveaccountButton(),
                   ],
                 ),
               ),
