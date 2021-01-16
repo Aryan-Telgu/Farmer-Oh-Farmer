@@ -254,14 +254,15 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  void incrementProductQuantity() async{
+  void incrementProductQuantity() async {
     enableAddToCartButton();
     if (widget.whichPage == ShoppingOrCart.CART) {
       await addProduct();
     }
     setState(() {
       widget.productQuantity++;
-      if (widget.whichPage == ShoppingOrCart.CART) widget.changeItemQuantityInList(1, widget.productIndex);
+      if (widget.whichPage == ShoppingOrCart.CART)
+        widget.changeItemQuantityInList(1, widget.productIndex);
     });
   }
 
@@ -272,15 +273,24 @@ class _ProductCardState extends State<ProductCard> {
         await removeProduct();
       } else {
         await addProduct();
+        setState(() {
+          if (widget.productQuantity > 0) {
+            widget.productQuantity--;
+            if (widget.whichPage == ShoppingOrCart.CART)
+              widget.changeItemQuantityInList(-1, widget.productIndex);
+          }
+        });
       }
+    } else {
+      setState(() {
+        if (widget.productQuantity > 0) {
+          widget.productQuantity--;
+          if (widget.whichPage == ShoppingOrCart.CART)
+            widget.changeItemQuantityInList(-1, widget.productIndex);
+        }
+      });
     }
-    setState(() {
-      if (widget.productQuantity > 0) {
-        widget.productQuantity--;
-        if (widget.whichPage == ShoppingOrCart.CART) widget.changeItemQuantityInList(-1,widget.productIndex);
-      }
-    });
-     enableAddToCartButton();
+    enableAddToCartButton();
   }
 
   void addProductToCart() {
