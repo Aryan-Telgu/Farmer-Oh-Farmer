@@ -63,6 +63,7 @@ class SignUpPageState extends State<SignUpPage> {
     } catch (e) {
       Toast.show(e.toString(), context,
           duration: Toast.LENGTH_LONG, gravity: Toast.BOTTOM);
+      print(e.toString());
       setState(() {
         isLoading = false;
       });
