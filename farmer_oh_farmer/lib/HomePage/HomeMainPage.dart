@@ -6,6 +6,7 @@ import 'package:farmer_oh_farmer/Style.dart';
 import 'package:farmer_oh_farmer/Transitions.dart';
 import 'package:flutter/material.dart';
 import 'package:farmer_oh_farmer/ShoppingPage/ShoppingMainPage.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -17,8 +18,35 @@ class _HomePageState extends State<HomePage> {
 
   ShoppingOrCart whichPage = ShoppingOrCart.SHOPPING;
 
+  String customerName = "Loading....";
+    String customerEmail = "Loading.....";
+
+    void getCustomerNameEmail() async{
+      try{
+      final customerInfo = new FlutterSecureStorage();
+        String customerNameTemp = await customerInfo.read(key: "CustomerName");
+        String customerEmailTemp = await customerInfo.read(key: "CustomerEmail");
+        print(customerEmailTemp);
+        print(customerNameTemp);
+        setState(() {
+          customerName = customerNameTemp;
+          customerEmail = customerEmailTemp;
+        });
+      }
+      catch(e){
+        print("Error Accessing The Customer");
+      }
+    }
+
+    @override
+    void initState() {
+      super.initState();
+      getCustomerNameEmail();
+    }
+
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       theme: ThemeData(
         primaryColor: customThemeGreen,
@@ -64,9 +92,9 @@ class _HomePageState extends State<HomePage> {
               color: themeColorGreen[800],
               child: ListView(children: <Widget>[
                 new UserAccountsDrawerHeader(
-                  accountName: new Text("Rutwik", style: blackText),
+                  accountName: new Text(customerName, style: blackText),
                   accountEmail:
-                      new Text("rutwik.shete@gmail.com", style: blackText),
+                      new Text(customerEmail, style: blackText),
                   currentAccountPicture: new CircleAvatar(
                     backgroundImage: new NetworkImage(
                         "https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse4.mm.bing.net%2Fth%3Fid%3DOIP.1ttGsbftpt0gIqIjA13sVwHaFj%26pid%3DApi&f=1"),
@@ -93,7 +121,7 @@ class _HomePageState extends State<HomePage> {
             width: double.infinity,
             child: whichPage == ShoppingOrCart.SHOPPING
                 ? ShoppingPage()
-                : CartPage(toggleToShoppingPage:toggleWhichPage),
+                : CartPage(toggleToShoppingPage: toggleWhichPage),
           ),
         ),
       ),

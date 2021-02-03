@@ -1,6 +1,6 @@
 // All Constant Variable Go Here
 String serverLink="http://farmer-oh-farmer.herokuapp.com/api/";
-//String serverLink="http://192.168.57.181:8080/api/";
+//String serverLink="http://192.168.248.181:8080/api/";
 String loginApi = serverLink + "customer/loginCustomer";
 String signUpApi = serverLink + "customer/addCustomer";
 String searchFarmerByLocationApi =
