@@ -2,6 +2,7 @@ import 'package:farmer_oh_farmer/HomePage/HomeMainPage.dart';
 import 'package:farmer_oh_farmer/LoginPage/LoginMainPage.dart';
 import 'package:farmer_oh_farmer/Models/Customer.dart';
 import 'package:flutter/material.dart';
+import 'package:form_field_validator/form_field_validator.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:toast/toast.dart';
@@ -32,6 +33,13 @@ class SignUpPageState extends State<SignUpPage> {
   String pincode = "";
   String address = "";
   bool isLoading = false;
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
+  void validateField() {
+    if (_formKey.currentState.validate()) {
+      signUpCustomer();
+    }
+  }
 
   Future<void> signUpCustomer() async {
     print(name + email + phone + password + pincode + address);
@@ -74,7 +82,7 @@ class SignUpPageState extends State<SignUpPage> {
   }
 
   Widget nameField() {
-    return TextField(
+    return TextFormField(
       controller: nameController,
       enabled: !isLoading,
       onChanged: (value) => name = value,
@@ -89,11 +97,17 @@ class SignUpPageState extends State<SignUpPage> {
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please enter some text';
+        }
+        return null;
+      },
     );
   }
 
   Widget emailField() {
-    return TextField(
+    return TextFormField(
       controller: emailController,
       enabled: !isLoading,
       onChanged: (value) => email = value,
@@ -108,11 +122,15 @@ class SignUpPageState extends State<SignUpPage> {
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
+      validator: MultiValidator([
+        RequiredValidator(errorText: "Email cannot be Empty"),
+        EmailValidator(errorText: 'enter a valid email address'),
+      ]),
     );
   }
 
   Widget phoneField() {
-    return TextField(
+    return TextFormField(
       controller: phoneController,
       enabled: !isLoading,
       onChanged: (value) => phone = value,
@@ -127,11 +145,12 @@ class SignUpPageState extends State<SignUpPage> {
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
+      validator: validatephone,
     );
   }
 
   Widget passwordField() {
-    return TextField(
+    return TextFormField(
       controller: passwordController,
       enabled: !isLoading,
       onChanged: (value) => password = value,
@@ -146,11 +165,17 @@ class SignUpPageState extends State<SignUpPage> {
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Please enter Password';
+        }
+        return null;
+      },
     );
   }
 
   Widget confirmPasswordField() {
-    return TextField(
+    return TextFormField(
       controller: confirmPasswordController,
       obscureText: true,
       style: style,
@@ -163,6 +188,15 @@ class SignUpPageState extends State<SignUpPage> {
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Please re-enter your Password';
+        }
+        if (passwordController.text != confirmPasswordController.text) {
+          return "Passwords do not match";
+        }
+        return null;
+      },
     );
   }
 
@@ -174,7 +208,7 @@ class SignUpPageState extends State<SignUpPage> {
       child: MaterialButton(
         minWidth: MediaQuery.of(context).size.width,
         padding: EdgeInsets.fromLTRB(20.0, 15.0, 20.0, 15.0),
-        onPressed: isLoading ? null : signUpCustomer,
+        onPressed: isLoading ? null : validateField,
         child: isLoading
             ? CircularProgressIndicator()
             : Text(
@@ -190,7 +224,7 @@ class SignUpPageState extends State<SignUpPage> {
   }
 
   Widget pincodeField() {
-    return TextField(
+    return TextFormField(
       controller: pincodeController,
       enabled: !isLoading,
       onChanged: (value) => pincode = value,
@@ -205,11 +239,12 @@ class SignUpPageState extends State<SignUpPage> {
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
+      validator: validatepin,
     );
   }
 
   Widget addressField() {
-    return TextField(
+    return TextFormField(
       controller: addressController,
       enabled: !isLoading,
       onChanged: (value) => address = value,
@@ -224,6 +259,12 @@ class SignUpPageState extends State<SignUpPage> {
           border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(32.0),
               borderSide: BorderSide(width: 1, color: Colors.grey))),
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please enter some text';
+        }
+        return null;
+      },
     );
   }
 
@@ -253,60 +294,83 @@ class SignUpPageState extends State<SignUpPage> {
     );
   }
 
+  String validatepin(value) {
+    if (value.isEmpty) {
+      return "Please enter a Pincode";
+    } else if (value.length < 6 || value.length > 6) {
+      return "Please enter a valid Pincode";
+    } else {
+      return null;
+    }
+  }
+
+  String validatephone(value) {
+    if (value.isEmpty) {
+      return "Please enter Phone Number";
+    } else if (value.length < 10 || value.length > 10) {
+      return "Please enter a valid Phone Number";
+    } else {
+      return null;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        image: DecorationImage(
-          image: AssetImage("assets/login_page_bg.png"),
-          fit: BoxFit.cover,
+    return Form(
+      key: _formKey,
+      child: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("assets/login_page_bg.png"),
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: Padding(
-          padding: const EdgeInsets.all(36.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(
-                height: 155.0,
-                child: Image.asset(
-                  "assets/home_logo.png",
-                  fit: BoxFit.contain,
+        child: Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Padding(
+            padding: const EdgeInsets.all(36.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                SizedBox(
+                  height: 155.0,
+                  child: Image.asset(
+                    "assets/home_logo.png",
+                    fit: BoxFit.contain,
+                  ),
                 ),
-              ),
-              Expanded(
-                child: ListView(
-                  shrinkWrap: true,
-                  children: <Widget>[
-                    SizedBox(height: 15.0),
-                    nameField(),
-                    SizedBox(height: 15.0),
-                    emailField(),
-                    SizedBox(height: 15.0),
-                    phoneField(),
-                    SizedBox(height: 15.0),
-                    passwordField(),
-                    SizedBox(height: 15.0),
-                    confirmPasswordField(),
-                    SizedBox(height: 15.0),
-                    pincodeField(),
-                    SizedBox(height: 15.0),
-                    addressField(),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    signUpButton(),
-                    SizedBox(
-                      height: 15.0,
-                    ),
-                    haveaccountButton(),
-                  ],
+                Expanded(
+                  child: ListView(
+                    shrinkWrap: true,
+                    children: <Widget>[
+                      SizedBox(height: 15.0),
+                      nameField(),
+                      SizedBox(height: 15.0),
+                      emailField(),
+                      SizedBox(height: 15.0),
+                      phoneField(),
+                      SizedBox(height: 15.0),
+                      passwordField(),
+                      SizedBox(height: 15.0),
+                      confirmPasswordField(),
+                      SizedBox(height: 15.0),
+                      pincodeField(),
+                      SizedBox(height: 15.0),
+                      addressField(),
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      signUpButton(),
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      haveaccountButton(),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

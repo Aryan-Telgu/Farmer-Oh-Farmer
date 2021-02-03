@@ -27,6 +27,9 @@ dependencies:
   toast: ^0.1.5
   flutter_secure_storage: ^3.3.5
   http: ^0.12.2
+  form_field_validator: ^1.0.1
+  email_validator: ^1.0.0
+  
   #pull_to_refresh: ^1.6.3  #for pull down refresh
 
   # The following adds the Cupertino Icons font to your application.
